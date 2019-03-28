@@ -1,6 +1,8 @@
 
 A simple BBS software, used through telnet, C, socket API
 
+*This is probably the most repsentative piece of coding from me*
+
 Compile: no any special flags needed, just gcc
 Usage: When the program is running use another terminal-emulator as a client by typing: telnet <computer's hostname> 3490
 NOTE: userdata -file needs to be in the same folder
