@@ -7,7 +7,6 @@
 //Note: message areas and download areas are not implemented. Commands which work are j (join conference), l (list conferences), q (quit), s (show userinfo). This project features nonethless comminaction between this server side program and a pure telnet client without any client application as well as the basic functioning of a BBS user database and command system.
 //Finnish comments are programmer's personal notes and would be removed if this code was released
 
-//socket(), socket descriptor - int ei aina ole integer arvo. Se on tarpeeksi suuri datavaranto varastoimaan handleseja, joka on intin kokoinen pointteri-data-tyyppi. Ja myös esim se close() menee jotenkin niiden pointtereiden läpi. Socket descriptor osoittaa johonkin datastruktuuriin, jossa on näitä datoja, mitä näissä koodeissa käsitellään. Tämä datastruktuuri on ilmeisesti tuo file descriptor table tai ainakin nämä kaksi ovat yhteydessä toisiinsa, jota käyttis pitää joka prosessille. Tuossa taulukossa on pointteri, joka osoittaa tiedostoon (siis nettiyhteyteen?), jonka prosessi on avannut ja pointteri palautetaan sitä kutsuneelle funktiolle.
 
 #include <stdio.h>
 #include <ctype.h>
