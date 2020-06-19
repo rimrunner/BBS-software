@@ -6,15 +6,8 @@
 
 //Note: message areas and download areas are not implemented. Commands which work are j (join conference), l (list conferences), q (quit), s (show userinfo). This project features nonethless comminaction between this server side program and a pure telnet client without any client application as well as the basic functioning of a BBS user database and command system.
 //Finnish comments are programmer's personal notes and would be removed if this code was released
-//Copyright Jari Sihvola 2019, unreleased
 
-//socket(), socket descriptor - int ei aina ole integer arvo. Se on tarpeeksi suuri datavaranto varastoimaan handleseja, joka on intin kokoinen pointteri-data-tyyppi. Ja myˆs esim se close() menee jotenkin niiden pointtereiden l‰pi. Socket descriptor osoittaa johonkin datastruktuuriin, jossa on n‰it‰ datoja, mit‰ n‰iss‰ koodeissa k‰sitell‰‰n. T‰m‰ datastruktuuri on ilmeisesti tuo file descriptor table tai ainakin n‰m‰ kaksi ovat yhteydess‰ toisiinsa, jota k‰yttis pit‰‰ joka prosessille. Tuossa taulukossa on pointteri, joka osoittaa tiedostoon (siis nettiyhteyteen?), jonka prosessi on avannut ja pointteri palautetaan sit‰ kutsuneelle funktiolle.
-
-/*
--OS pit‰‰ file descriptor tablea joka prosessille, ja kun prosessi avaa tiedoston, taulukkoon laitetaan pointteri, joka osoittaa tiedoston sis‰iseen datarakenteeseen ja pointterin indeksi palautetaan kutsuneelle funktiolle
--Kun sovellus luo socketin, luodaan socket descriptor, joka osoittaa datastruktuuriin, jossa on tietoa socketista (socket type, local address, socketin k‰ytt‰m‰ portti, remote address ja portti)
--Socketia voi k‰ytt‰‰ kahdella tavalla. Luomisensa j‰lkeen socket voi odottaa tulevaa yhteytt‰ (passive socket) tai se voi aloittaa yhteyden remote hostiin tai joskus localiin (active socket).
-*/
+//socket(), socket descriptor - int ei aina ole integer arvo. Se on tarpeeksi suuri datavaranto varastoimaan handleseja, joka on intin kokoinen pointteri-data-tyyppi. Ja my√∂s esim se close() menee jotenkin niiden pointtereiden l√§pi. Socket descriptor osoittaa johonkin datastruktuuriin, jossa on n√§it√§ datoja, mit√§ n√§iss√§ koodeissa k√§sitell√§√§n. T√§m√§ datastruktuuri on ilmeisesti tuo file descriptor table tai ainakin n√§m√§ kaksi ovat yhteydess√§ toisiinsa, jota k√§yttis pit√§√§ joka prosessille. Tuossa taulukossa on pointteri, joka osoittaa tiedostoon (siis nettiyhteyteen?), jonka prosessi on avannut ja pointteri palautetaan sit√§ kutsuneelle funktiolle.
 
 #include <stdio.h>
 #include <ctype.h>
@@ -31,9 +24,9 @@
 #include <signal.h>
 #include <time.h>
 
-//N‰m‰ muuttujiksi
-#define PORT "3490" //Portti, johon k‰ytt‰j‰t yhdistet‰‰n
-#define BACKLOG 10  //Kuinka monta odottavaa yhteytt‰ jono voi kantaa
+//N√§m√§ muuttujiksi
+#define PORT "3490" //Portti, johon k√§ytt√§j√§t yhdistet√§√§n
+#define BACKLOG 10  //Kuinka monta odottavaa yhteytt√§ jono voi kantaa
 #define ULINE_LEN 100
 #define RECEIVE_BUFFER_SIZE 64
 
@@ -76,7 +69,7 @@ struct user {
 struct user* listhead; //points to the beginning of the list
 int update_userbase(struct user *write_this, char add_or_update);
 
-//huom. linked list tutorialin termej‰ muuteltu: node = struct user, data = FD_num, new_node = new_user, prepend = add_to_userlist, create = do_user_struct, head = listhead
+//huom. linked list tutorialin termej√§ muuteltu: node = struct user, data = FD_num, new_node = new_user, prepend = add_to_userlist, create = do_user_struct, head = listhead
 
 //This list's function creates a user_struct. This is not directly called but the next function calls this.
 //First every user gets "new user" datas, but they will be changed after the user is identified
@@ -110,12 +103,12 @@ struct user* do_user_struct(int FD_num2) {
   return new_user;
 }
 
-//T‰t‰ ilmeisesti kutsutaan ja t‰m‰ kutsuu sitten tuota edellist‰ funktiota
-//Listhead siirtyy aina (ei-tyhj‰n listan tapauksessa) yhden taakse p‰in, kun uusi struct on luotu
+//T√§t√§ ilmeisesti kutsutaan ja t√§m√§ kutsuu sitten tuota edellist√§ funktiota
+//Listhead siirtyy aina (ei-tyhj√§n listan tapauksessa) yhden taakse p√§in, kun uusi struct on luotu
 //Tarviiko listheadia parametriksi, kun se on globaali muuttuja?
-//HUOM!! Palauttaa listheadin, mutta tarvitaanko sit‰?
+//HUOM!! Palauttaa listheadin, mutta tarvitaanko sit√§?
 int add_to_userlist(int FDn) {
-  printf("Lis‰t‰‰n userlistiin FD %d\n", FDn);
+  printf("Lis√§t√§√§n userlistiin FD %d\n", FDn);
   //struct user* add_to_userlist(struct user *listhead, int FD_num) {  LISTHEAD!!
   struct user *new_user = do_user_struct(FDn);
   listhead = new_user;
@@ -123,16 +116,16 @@ int add_to_userlist(int FDn) {
 }
 
 //Returns a pointer to a user struct which contains a given FD. IMPORTANT: This function must not be used directly when updating an element which originates from recvbuf (data typed by user - it is converted into a new dynamic string) or is another kind of string created with malloc. Instead use update_user_struct in those cases.
-struct user* get_user_struct(int FDstruct) {      //T‰ss‰ oli listhead parametrina, mutta ei kai sit‰ tarvitse
-  printf("get_user_struct, haetaan FD:t‰ %d\n", FDstruct);
+struct user* get_user_struct(int FDstruct) {      //T√§ss√§ oli listhead parametrina, mutta ei kai sit√§ tarvitse
+  printf("get_user_struct, haetaan FD:t√§ %d\n", FDstruct);
   struct user* target = listhead;
   while(target != NULL) {
     //    printf("get_user_struct, USERNAME: %s\n", target->username);
-    //    if(target->FD_num == FDstruct) printf("lˆytyi struct user\n");
+    //    if(target->FD_num == FDstruct) printf("l√∂ytyi struct user\n");
     if(target->FD_num == FDstruct) return target;
     target = target->next;
   }
-  printf("ei lˆytynyt struct user\n");
+  printf("ei l√∂ytynyt struct user\n");
   return NULL;
 }
 
@@ -176,7 +169,7 @@ int update_user_struct(int FDf, char *new_data, int fieldno) {
   
 }
 
-//DEBUG - funktio joka laskee linked-listin sis‰llˆn
+//DEBUG - funktio joka laskee linked-listin sis√§ll√∂n
 int laske_lista() {
   struct user* cursor = listhead;
   int c = 0;
@@ -234,7 +227,7 @@ int remove_on_exit(int FDf) {
     if(survivor != NULL) { //Miten voisi olla NULL?
       struct user *victim = survivor->next;
       survivor->next = victim->next;  //Setting remaining struct's next pointer to point over the struct to be removed
-      victim->next = NULL; //Miksi t‰m‰?
+      victim->next = NULL; //Miksi t√§m√§?
       free(victim);
       retval = 0;
     }
@@ -290,7 +283,7 @@ void sendpr(int FDpr) {
 }
 
 void sendmenu(int FDf) {
-  //T‰h‰n voisi tehd‰, ett‰ se k‰ytt‰‰ tuota bbsnamea, mutta sit‰ varten pit‰isi tehd‰ toinen stringi, jonka pituus tehd‰‰n suhteessa BBSnameen, ett‰ se menee kohdilleen
+  //T√§h√§n voisi tehd√§, ett√§ se k√§ytt√§√§ tuota bbsnamea, mutta sit√§ varten pit√§isi tehd√§ toinen stringi, jonka pituus tehd√§√§n suhteessa BBSnameen, ett√§ se menee kohdilleen
   char menu[300]; //40 characters counted for username, userlevel, country, hometown, 20 for totaltime, logtime
   snprintf(menu, sizeof(menu), "\n----------------------------\n|                          |\n| BBS Main menu            |\n|                          |\n| (l)ist conferences       |\n| (j)oin conference        |\n| (s)how your userinfo     |\n| (q)uit                   |\n|                          |\n----------------------------\n\n", bbsname);
   //  snprintf(userinfo, sizeof(userinfo), "Username: %s", (get_user_struct(FDf)->username));
@@ -316,10 +309,10 @@ int quit_f2(int FDq2, char *com) {
   return 1;
 }
 int quit_f(int FDquit, char *dummy) {
-  //debuggerin mukaan FD on 1 (kun sit‰ ei ole siirretty eli joku alustamaton arvo?)
+  //debuggerin mukaan FD on 1 (kun sit√§ ei ole siirretty eli joku alustamaton arvo?)
   char *query = "Are you sure you want to quit? (y/n)\n";
   if(send(FDquit, query, strlen(query), 0) == -1) perror("Quit confirmation fail");
-  //Voisiko kaksi seuraavaa rivi‰ yhdist‰‰?
+  //Voisiko kaksi seuraavaa rivi√§ yhdist√§√§?
   int (*nf)() = &quit_f2;
   get_user_struct(FDquit)->next_func = nf;
   return 0;
@@ -386,7 +379,7 @@ int list_confs_f(int FDf, char *dummy) {
   return 97; //97 = call list_confs_f2 & send pointer to array and its length 
 }
 
-int oneliner_f() {} //T‰h‰n ei tarvita kuin yksi funktio (tyhj‰ rivi = cancel)
+int oneliner_f() {} //T√§h√§n ei tarvita kuin yksi funktio (tyhj√§ rivi = cancel)
 
 struct command join_conf = {.comstring = "j", .altstring = "join", .call = join_conf_f };
 struct command list_confs = {.comstring = "l", .altstring = "list conferences", .call = list_confs_f };
@@ -771,7 +764,7 @@ int update_userbase(struct user *write_this, char add_or_update) {
   rewind(userfile_ptr);
 
   char update_str[ULINE_LEN];
-  snprintf(update_str, sizeof(update_str), "%s  %s  %d  %s  %s  %s  %d  %d\n", write_this->username, write_this->password, write_this->FD_num, write_this->userlevel, write_this->country, write_this->hometown, write_this->totaltime, write_this->logtime);  //T‰m‰ n‰ytt‰‰ jonkun end-characterin tms, mutta se kai poistuu tuossa strleniss‰
+  snprintf(update_str, sizeof(update_str), "%s  %s  %d  %s  %s  %s  %d  %d\n", write_this->username, write_this->password, write_this->FD_num, write_this->userlevel, write_this->country, write_this->hometown, write_this->totaltime, write_this->logtime);  //T√§m√§ n√§ytt√§√§ jonkun end-characterin tms, mutta se kai poistuu tuossa strleniss√§
 
   if(add_or_update == 'u') {
     char *user = write_this->username;
@@ -823,7 +816,7 @@ int check_userdata(int varnum, char *varstring, char *username, int use_username
   int lines = count_udatalines(userfile_ptr);
   rewind(userfile_ptr);
 
-  //T‰m‰ pit‰isi varmaan korjata jotenkin. T‰ss‰ ei tule mit‰‰n erroria, jos rivi onkin pidempi kuin tuo annettu luku
+  //T√§m√§ pit√§isi varmaan korjata jotenkin. T√§ss√§ ei tule mit√§√§n erroria, jos rivi onkin pidempi kuin tuo annettu luku
   char (*read_array)[ULINE_LEN] = read_userdata(userfile_ptr, lines);
   fclose(userfile_ptr);
 
@@ -873,18 +866,18 @@ int check_userdata(int varnum, char *varstring, char *username, int use_username
 
 //SOCKET DATA
 
-//T‰m‰ funktio ottaa sockaddrin ja palauttaa IPv4 tai IPv6 sen mukaan, kumpi siell‰ nyt on
-void *get_in_addr(struct sockaddr *sa) {  //Ilmeisesti m‰‰rittely tarkoittaa, ett‰ t‰m‰ on void pointterin (yleisk‰yttˆisen pointterin) palauttava funktio
+//T√§m√§ funktio ottaa sockaddrin ja palauttaa IPv4 tai IPv6 sen mukaan, kumpi siell√§ nyt on
+void *get_in_addr(struct sockaddr *sa) {  //Ilmeisesti m√§√§rittely tarkoittaa, ett√§ t√§m√§ on void pointterin (yleisk√§ytt√∂isen pointterin) palauttava funktio
   if(sa->sa_family == AF_INET)  return &(((struct sockaddr_in*)sa)->sin_addr);
   return &(((struct sockaddr_in6*)sa)->sin6_addr);
-  //Sulkeiden ja nuolen presendenssi on sama, mutta ne luetaan vasemmalta oikealle, joten suluissa oleva struct-osa on kai niinkun, ett‰ ensimm‰isen‰ laitetaan pointteriksi sa-muuttuja (seh‰n on sama, kummassa osapuolessa se asteriski on kiinni, sulut vain merkkaa, ett‰ kyse on asteriskista), sitten siihen haetaan sin6_addr ja palautetaan &:n kanssa. Palauttaa osoitteen struct sin[6]_addriin. Joku sanoi, ett‰ &x on pointteri (jos x = esim int x) eli tuokin palauttaa siis pointterin (&sin_addr ilmeisesti).
-  //parametrin‰ on pointteri sockaddriin, siit‰ katsotaan, mik‰ sen memberin (struct sockaddr_in[6] arvo on. Kyse on ilmeisesti jostain t‰mmˆisest‰: http://www.iso-9899.info/wiki/Common_Initial_Sequence
+  //Sulkeiden ja nuolen presendenssi on sama, mutta ne luetaan vasemmalta oikealle, joten suluissa oleva struct-osa on kai niinkun, ett√§ ensimm√§isen√§ laitetaan pointteriksi sa-muuttuja (seh√§n on sama, kummassa osapuolessa se asteriski on kiinni, sulut vain merkkaa, ett√§ kyse on asteriskista), sitten siihen haetaan sin6_addr ja palautetaan &:n kanssa. Palauttaa osoitteen struct sin[6]_addriin. Joku sanoi, ett√§ &x on pointteri (jos x = esim int x) eli tuokin palauttaa siis pointterin (&sin_addr ilmeisesti).
+  //parametrin√§ on pointteri sockaddriin, siit√§ katsotaan, mik√§ sen memberin (struct sockaddr_in[6] arvo on. Kyse on ilmeisesti jostain t√§mm√∂isest√§: http://www.iso-9899.info/wiki/Common_Initial_Sequence
 }
 
 
 int main() {
 
-  //v‰liaikaiset
+  //v√§liaikaiset
   struct conference conflist[3];
 
   struct conference musique;
@@ -927,16 +920,16 @@ int main() {
   fd_set master; //Add master to the fd set
   fd_set read_fds; //Temporary file descriptor list used with select()
   int fdmax; //Max file descriptor number
-  int listener, new_fd; //Socket descriptorit, joista listener:ll‰ kuunnellaan, new_fd on uutta yhteytt‰ varten, listener is for connecting //LIIKAA!!
+  int listener, new_fd; //Socket descriptorit, joista listener:ll√§ kuunnellaan, new_fd on uutta yhteytt√§ varten, listener is for connecting //LIIKAA!!
   
   int recvbytes;
   char recvbuf[RECEIVE_BUFFER_SIZE];
   memset(recvbuf, 0, sizeof recvbuf);
 
   struct addrinfo hints, *servinfo, *p;
-  struct sockaddr_storage their_addr; //Yhteydenottajan osoitetiedoille. T‰m‰ struct-tyyppi on tarpeeksi suuri pit‰m‰‰n IPv4 ja IPv6 -structit, jos ei tied‰, kumpaa tarvitaan. Pelkk‰ sockaddr ei ole riitt‰v‰n iso
-  socklen_t sin_size;  //Tyyppi on v‰hint‰‰n 32-bittinen unsigned int
-  int yes=1; //setsockoptille boolelainen arvo inttin‰
+  struct sockaddr_storage their_addr; //Yhteydenottajan osoitetiedoille. T√§m√§ struct-tyyppi on tarpeeksi suuri pit√§m√§√§n IPv4 ja IPv6 -structit, jos ei tied√§, kumpaa tarvitaan. Pelkk√§ sockaddr ei ole riitt√§v√§n iso
+  socklen_t sin_size;  //Tyyppi on v√§hint√§√§n 32-bittinen unsigned int
+  int yes=1; //setsockoptille boolelainen arvo inttin√§
   char remoteIP[INET6_ADDRSTRLEN];
   int rv; //getaddrinfon tarkistusmuuttuja
 
@@ -946,15 +939,15 @@ int main() {
   memset(&hints, 0, sizeof hints);  //Varmennustyhjennys
   hints.ai_family = AF_UNSPEC;  //IP-versioneutraalius
   hints.ai_socktype = SOCK_STREAM;  //Perus stream socket
-  hints.ai_flags = AI_PASSIVE; //K‰yt‰ koneen IP:t‰ (?)
+  hints.ai_flags = AI_PASSIVE; //K√§yt√§ koneen IP:t√§ (?)
 
-  if((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0) {  //getaddrinfo on t‰m‰ addrinfo-structit t‰ytt‰v‰ funktio
+  if((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0) {  //getaddrinfo on t√§m√§ addrinfo-structit t√§ytt√§v√§ funktio
       fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
       return 1;
   }
 
   /*
-  tarpeettomaksi osoittautunut apupointterin k‰yttˆ:
+  tarpeettomaksi osoittautunut apupointterin k√§ytt√∂:
   struct command *temp_p;
   temp_p = comarray[0];
   char *testichar = (temp_p)->altstring;
@@ -963,34 +956,34 @@ int main() {
   //  printf("the first instruction gives %s\n", testichar);
 
   
-  //Luupataan kaikkien getaddrinfon laittamien tulosten l‰pi ja bindataan ensimm‰iseen, mihin voi
-  for(p = servinfo; p != NULL; p = p->ai_next) { //p on m‰‰ritelty aiemmin struct addrinfo -tyyppiseksi pointteriksi ja siihen assignoidaan toinen vastaava, johon on laitettu osoite
-    if((listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) { //T‰ss‰ assignoidaan socket descriptor -int-muuttuja. Socketista on t‰m‰n tekstin alussa lis‰‰. Virheen tapaukessa socket-olio ilmeisesti on aito int, eik‰ pointer-handle-storage tms.
+  //Luupataan kaikkien getaddrinfon laittamien tulosten l√§pi ja bindataan ensimm√§iseen, mihin voi
+  for(p = servinfo; p != NULL; p = p->ai_next) { //p on m√§√§ritelty aiemmin struct addrinfo -tyyppiseksi pointteriksi ja siihen assignoidaan toinen vastaava, johon on laitettu osoite
+    if((listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) { //T√§ss√§ assignoidaan socket descriptor -int-muuttuja. Socketista on t√§m√§n tekstin alussa lis√§√§. Virheen tapaukessa socket-olio ilmeisesti on aito int, eik√§ pointer-handle-storage tms.
       perror("server: socket"); //Perror kirjoittaa kuvailevan virheviestin stderr:iin
       continue;  //continue --> loopin seuraavalle kierrokselle breakin sijaan
     }
     if(setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {perror("setsockopt"); exit(1);}
-    //setsockopt() muokkaa socket descriptorin asetuksia. SOL_SOCKET = muokataan asetuksia API-tasolla, SO_REUSEADDR = Antaa socketin bind()ata porttiin, jos ei ole aktiivista kuuntelevaa socketia siell‰ jo. N‰in voi v‰ltt‰‰ "address already in use" errorit, jos kaatunut serveri k‰ynnistet‰‰n uudelleen. Kolmas parametri on pointteri inttiin, joka on false (0) tai true (>0) ja laittaa siis p‰‰lle tai pois edellisen parametrin asetuksen (tai se voi olla joku muukin arvo kaiketi kuin boolelainen) ja viimeinen parametri on edellisen parametrin pituus (usein sizeof(int))
+    //setsockopt() muokkaa socket descriptorin asetuksia. SOL_SOCKET = muokataan asetuksia API-tasolla, SO_REUSEADDR = Antaa socketin bind()ata porttiin, jos ei ole aktiivista kuuntelevaa socketia siell√§ jo. N√§in voi v√§ltt√§√§ "address already in use" errorit, jos kaatunut serveri k√§ynnistet√§√§n uudelleen. Kolmas parametri on pointteri inttiin, joka on false (0) tai true (>0) ja laittaa siis p√§√§lle tai pois edellisen parametrin asetuksen (tai se voi olla joku muukin arvo kaiketi kuin boolelainen) ja viimeinen parametri on edellisen parametrin pituus (usein sizeof(int))
 
-    //Kuuntelusockettiin bindataan lokaalit osoitetiedot ilmeisesti t‰ss‰:
-    //bindill‰ sidotaan socket (esim.) oman koneen osoitteeseen
+    //Kuuntelusockettiin bindataan lokaalit osoitetiedot ilmeisesti t√§ss√§:
+    //bindill√§ sidotaan socket (esim.) oman koneen osoitteeseen
     if(bind(listener, p->ai_addr, p->ai_addrlen) == -1) {
       close(listener); //suljetaan jos virhe
       perror("server: bind");
       continue;
     }
-    break;  //Looppi jatkaa, jos bindaus ei onnistu, muuten break heti ekalla kerralla, kun bindattava osoite lˆytyy
+    break;  //Looppi jatkaa, jos bindaus ei onnistu, muuten break heti ekalla kerralla, kun bindattava osoite l√∂ytyy
   }
 
-  freeaddrinfo(servinfo); //ei tarvita en‰‰
+  freeaddrinfo(servinfo); //ei tarvita en√§√§
 
-  //Viel‰ tarkistetaan, onnistuiko bindaus
+  //Viel√§ tarkistetaan, onnistuiko bindaus
   if(p == NULL) {  
     fprintf(stderr, "server: bind failure\n");
     exit(1);
   }
 
-  //Listen p‰‰lle. Listen kertoo socketille, ett‰ ollaan valmiita hyv‰ksym‰‰n yhteyksi‰ ja antaa maksimiluvun jonotettaville yhteyksille
+  //Listen p√§√§lle. Listen kertoo socketille, ett√§ ollaan valmiita hyv√§ksym√§√§n yhteyksi√§ ja antaa maksimiluvun jonotettaville yhteyksille
   if(listen(listener, BACKLOG) == -1) {
     perror("listen");
     exit(1);
@@ -1013,18 +1006,18 @@ int main() {
     //Checking for new connections and readable data
     for(int con_num = 0; con_num <= fdmax; con_num++) {
       if(FD_ISSET(con_num, &read_fds)) { //Returns true if fd (con_num) is set
-	if(con_num == listener) { //This means there is a new connection  ...Siis jos listenerin kohdalle on laitettu FD, silloin se on siell‰ ilmeisesti tilap‰isesti ja tarkoittaa uutta yhteytt‰
+	if(con_num == listener) { //This means there is a new connection  ...Siis jos listenerin kohdalle on laitettu FD, silloin se on siell√§ ilmeisesti tilap√§isesti ja tarkoittaa uutta yhteytt√§
 	  sin_size = sizeof their_addr;
-	  new_fd = accept(listener, (struct sockaddr*)&their_addr, &sin_size);  //accept() palauttaa yhteyskohtaisen uuden socket file descriptorin. Toinen parametri on struckt sockaddr* addr, ja & -tulee siis, koska se on pointteri-parametri, mutta siin‰ jotenkin laitetaan argumentissa, ett‰ se on tyypilt‰‰n struct sockaddr*, kun se syˆtett‰v‰ olio on varsinaisesti struct sockaddr_storage -tyyppinen... olikohan tuo se joku unified initialization struct (???), ett‰ noissa structeissa on jotain yhteist‰, niin niit‰ voi k‰ytt‰‰ noin. Tuo sockaddr_storagehan on kai vain joku toinen versio sockaddrista, joka on riitt‰v‰n iso IPv6 -osoitteille
+	  new_fd = accept(listener, (struct sockaddr*)&their_addr, &sin_size);  //accept() palauttaa yhteyskohtaisen uuden socket file descriptorin. Toinen parametri on struckt sockaddr* addr, ja & -tulee siis, koska se on pointteri-parametri, mutta siin√§ jotenkin laitetaan argumentissa, ett√§ se on tyypilt√§√§n struct sockaddr*, kun se sy√∂tett√§v√§ olio on varsinaisesti struct sockaddr_storage -tyyppinen... olikohan tuo se joku unified initialization struct (???), ett√§ noissa structeissa on jotain yhteist√§, niin niit√§ voi k√§ytt√§√§ noin. Tuo sockaddr_storagehan on kai vain joku toinen versio sockaddrista, joka on riitt√§v√§n iso IPv6 -osoitteille
 	  if(new_fd == -1) {
 	    perror("accept error");
 	  }
 	  else {
 	    FD_SET(new_fd, &master); //A new connection is added to the master set
 	    if(new_fd > fdmax) fdmax = new_fd; //Updating fdmax
-	    printf("selectserver: New connection from %s on ""socket %d\n", inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr*)&their_addr), remoteIP, INET6_ADDRSTRLEN), new_fd);  //network-tyyppinen bin‰‰rikoodaus muutetaan presentaatioksi (koneen ymm‰rt‰m‰ksi). ss_family on joko IPv4 tai IPv6,
+	    printf("selectserver: New connection from %s on ""socket %d\n", inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr*)&their_addr), remoteIP, INET6_ADDRSTRLEN), new_fd);  //network-tyyppinen bin√§√§rikoodaus muutetaan presentaatioksi (koneen ymm√§rt√§m√§ksi). ss_family on joko IPv4 tai IPv6,
 	    send(new_fd, "\n", strlen("\n"), 0);
-	    if(send(new_fd, welcomemsg, strlen(welcomemsg), 0) == -1) perror("Welcome msg fail");  //Viestin l‰hetys, kolmas parametri on viestin pituus, nelj‰s on flag
+	    if(send(new_fd, welcomemsg, strlen(welcomemsg), 0) == -1) perror("Welcome msg fail");  //Viestin l√§hetys, kolmas parametri on viestin pituus, nelj√§s on flag
 	    send(new_fd, "\n", strlen("\n"), 0);
 	    send(new_fd, "\n", strlen("\n"), 0);
 	    sendpr(new_fd);
@@ -1051,7 +1044,7 @@ int main() {
 	    char *bufentry;
 	    for(int i = RECEIVE_BUFFER_SIZE-1; i > 0; i--) {  //Reading recvbuf backwards and taking the stuff with some content (instead of 0)
 	      if(recvbuf[i] != 0) {
-		//printf("bufferin lopussa on %d v‰lilyˆnti‰\n", RECEIVE_BUFFER_SI>E-1-i);
+		//printf("bufferin lopussa on %d v√§lily√∂nti√§\n", RECEIVE_BUFFER_SI>E-1-i);
 		bufentry = malloc(i); //at this point i contains an additional value that is a place for the null terminator
 		memcpy(bufentry, recvbuf, i-1);
 		bufentry[i-1] = '\0'; //here i is 0-based unlike above
@@ -1082,7 +1075,7 @@ int main() {
 		int command_num = is_command(first_word(bufentry));
 	        if(command_num >= 0) {  //If is_command returns >= 0, the command is found and called
 		  char *comarg = is_there_arg(bufentry); //Comarg becomes NULL, if there are no argument in bufentry
-		  int comres = comarray[command_num]->call(con_num, comarg);  //T‰h‰n saa varmaan argumentit sitten, jos ne laittaa tuohon call()iin
+		  int comres = comarray[command_num]->call(con_num, comarg);  //T√§h√§n saa varmaan argumentit sitten, jos ne laittaa tuohon call()iin
 		  if(comres == 97) list_confs_f2(con_num, (sizeof(conflist)/sizeof(*conflist)), conflist);
 		  if(comres == 96) join_conf_f2(con_num, comarg, (sizeof(conflist)/sizeof(*conflist)), conflist);
 		  free(comarg);
